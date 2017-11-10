@@ -68,11 +68,14 @@ CN-Workshop/labs/my_work/cloud-native-spring $ mv src/main/resources/application
 
 . Import the project’s pom.xml into your editor/IDE of choice.
 +
-*_Spring Tool Suite Import Help:_*
-+
-`File -> Import… -> Maven -> Existing Maven Projects`
-+
+[TIP]
+====
+*Spring Tool Suite Import Help*
+
+Navigate to: `File -> Import… -> Maven -> Existing Maven Projects`
+
 On the Import Maven Projects page, _Browse_ to: `CN-Workshop/labs/my_work/cloud-native-spring`
+====
 
 == Add an Endpoint
 
