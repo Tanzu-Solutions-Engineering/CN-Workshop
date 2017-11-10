@@ -16,7 +16,7 @@ This workshop provides developers with hands on experience building cloud native
 
 == Sessions
 
-NOTE: Each new lab exercise builds upon the preceding lab, so please do not skip around the labs!
+WARNING: Each new lab exercise builds upon the preceding lab, so please do not skip around the labs!
 
 * Session 1: link:presentations/Session_1_CN_Design_DDD.pptx[_Cloud Native Design, Domain Driven Design, & Microservices_]
 * Session 2: link:presentations/Session_2_Intro_Boot.pptx[_Introducing Spring Boot_]
@@ -59,7 +59,7 @@ $ git clone https://github.com/Pivotal-Field-Engineering/CN-Workshop.git
 
 == IDE Setup and tips
 
-This section shares some optional tips for configuring your IDE for an optimal experience during the workshop!
+TIP: This section shares some optional tips for configuring your IDE for an optimal experience during the workshop!
 
 === Eclipse / Spring Tool Suite
 
