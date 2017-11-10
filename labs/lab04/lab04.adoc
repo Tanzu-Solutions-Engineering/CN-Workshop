@@ -1,4 +1,13 @@
-include::../../attributes.adoc[]
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:spring-cloud-services-dependencies-version: 1.5.0.RELEASE
+:spring-cloud-dependencies-version: Dalston.SR4
+
 = Adding Spring Cloud Config Server
 
 == Overview

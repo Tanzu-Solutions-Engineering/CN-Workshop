@@ -1,4 +1,12 @@
-include::../../attributes.adoc[]
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:spring-boot-version: 1.5.8
+
 = Enhancing with Metrics
 
 == Overview
@@ -470,7 +478,7 @@ management:
       mode: full
   cloudfoundry:
     enabled: true
-    skip-ssl-validation: {skip-ssl-validation} # set to true if using an insecure CF environment
+    skip-ssl-validation: false # set to true if using an insecure CF environment
 ----
 
 . In order to add full build information to your artifact that is pushed to Cloud Foundry, and add the following execution and classifier to the `spring-boot-maven-plugin`:
