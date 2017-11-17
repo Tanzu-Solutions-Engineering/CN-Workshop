@@ -149,15 +149,15 @@ spring:
   application:
     name: cloud-native-spring
 
-endpoints:
-  sensitive: false
-
 info:
   build:
     artifact: "@project.artifactId@"
     name: "@project.name@"
     description: "@project.description@"
     version: "@project.version@"
+
+endpoints:
+  sensitive: false
 
 management:
   security:
