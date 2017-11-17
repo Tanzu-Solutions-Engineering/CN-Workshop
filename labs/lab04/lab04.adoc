@@ -49,8 +49,8 @@ Add the following to Maven `dependencies`:
     <dependencies>
       <dependency>
         <groupId>io.pivotal.spring.cloud</groupId>
-        <artifactId>{spring-cloud-services-dependencies-version}</artifactId>
-        <version>1.5.0.RELEASE</version>
+        <artifactId>spring-cloud-services-dependencies</artifactId>
+        <version>{spring-cloud-services-dependencies-version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
