@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: cloud-native-spring-ui
+
+# Explicitly enable Feign Hystrix Support for Spring Cloud Dalston release:
+# http://cloud.spring.io/spring-cloud-static/Dalston.SR4/single/spring-cloud.html#spring-cloud-feign-hystrix
+feign:
+  hystrix:
+    enabled: true
+
+security:
+  basic:
+    enabled: false
