@@ -114,6 +114,34 @@ public class CloudNativeSpringUiApplication {
 }
 ----
 
+. To enable Feign Hystrix support, we'll need to add the following to our Spring Boot configuration:
++
+.cloud-native-spring-ui/src/main/resources/application.yml
+[source,yaml]
+----
+feign:
+  hystrix:
+    enabled: true
+----
++
+Completed:
++
+.cloud-native-spring-ui/src/main/resources/application.yml
+[source,yaml]
+----
+spring:
+  application:
+    name: cloud-native-spring-ui
+
+feign:
+  hystrix:
+    enabled: true
+
+security:
+  basic:
+    enabled: false
+----
+
 == Create the Circuit Breaker Dashboard
 
 .  When we modified our application to use a Hystrix Circuit Breaker our application automatically begins streaming out metrics about the health of our methods wrapped with a HystrixCommand.  We can stream these events through a AMQP message bus into Turbine to view on a Circuit Breaker dashboard.  This can be done through Cloud Foundry using the services marketplace by executing the following command:
