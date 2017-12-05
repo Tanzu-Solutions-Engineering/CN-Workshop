@@ -5,8 +5,8 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-cloud-services-dependencies-version: 1.5.0.RELEASE
-:spring-cloud-dependencies-version: Dalston.SR4
+:spring-cloud-services-dependencies-version: 1.6.0.RELEASE
+:spring-cloud-dependencies-version: Edgware.RELEASE
 
 = Adding Spring Cloud Config Server
 
