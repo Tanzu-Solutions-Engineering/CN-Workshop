@@ -541,9 +541,7 @@ applications:
 - name: cloud-native-spring
   random-route: true
   memory: 768M
-  instances: 1
   path: target/cloud-native-spring-0.0.1-SNAPSHOT-exec.jar # <-- update jar name
-  buildpack: java_buildpack
   timeout: 180
   env:
     JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
