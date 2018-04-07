@@ -84,7 +84,7 @@ Show line numbers::
 Very useful when collaborating and you need to explicitly state which line number you are referring to.
 
 Automatically refresh resources changed outside of Eclipse::
-`Preferences -> General -> Workspace -> Refresh using native hooks or profiling`
+`Preferences -> General -> Workspace -> Refresh using native hooks or polling`
 +
 This enables Eclipse to recognize changes to files that have been modified outside of Eclipse. Pretty handy.
 
