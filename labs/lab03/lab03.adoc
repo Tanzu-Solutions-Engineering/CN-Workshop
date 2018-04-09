@@ -12,7 +12,7 @@ endif::[]
 == Overview
 
 [.lead]
-Spring Boot includes a number of additional features to help you monitor and manage your application when it’s pushed to production. You can choose to manage and monitor your application using HTTP endpoints, with JMX or even by remote shell (SSH or Telnet). Auditing, health and metrics gathering can be automatically applied to your application.
+Spring Boot includes a number of additional features to help you monitor and manage your application when it’s pushed to production. You can choose to manage and monitor your application using HTTP and JMX endpoints. Auditing, health and metrics gathering can be automatically applied to your application.
 
 == Set up the Actuator
 
@@ -529,7 +529,7 @@ The full plugin config should look like the following:
 </project
 ----
 
-. By specifying a classifier we actually just produced 2 jars, one that is executable and one that can be used as an artifact that could be included in other apps (such as our Client UI app we'll create later).  Because of this we need to chance the name of the jar we included in our manifest.yml file.
+. By specifying a classifier we actually just produced 2 jars, one that is executable and one that can be used as an artifact that could be included in other apps (such as our Client UI app we'll create later).  Because of this we need to change the name of the jar we included in our manifest.yml file.
 +
 Change the Cloud Foundry manifest path property to:
 +
