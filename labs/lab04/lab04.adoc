@@ -5,7 +5,7 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-cloud-services-dependencies-version: 1.6.0.RELEASE
+:spring-cloud-services-dependencies-version: 1.6.3.RELEASE
 :spring-cloud-dependencies-version: Edgware.RELEASE
 
 = Adding Spring Cloud Config Server
@@ -22,7 +22,7 @@ In this lab we'll utilize Spring Boot and Spring Cloud to configure our applicat
 Add the following to Maven `dependencies`:
 +
 .cloud-native-spring/pom.xml
-[source,xml]
+[source,xml,subs="verbatim,attributes"]
 ----
 <project>
   [...]
@@ -31,6 +31,7 @@ Add the following to Maven `dependencies`:
     <dependency>
       <groupId>io.pivotal.spring.cloud</groupId>
       <artifactId>spring-cloud-services-starter-config-client</artifactId>
+      <version>{spring-cloud-services-dependencies-version}</version>
     </dependency>
     [...]
   </dependencies>
