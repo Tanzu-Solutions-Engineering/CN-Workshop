@@ -261,8 +261,15 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw package
 CN-Workshop/labs/my_work/cloud-native-spring $ cf push
 ----
 
-. Test your application by navigating to the root URL of the application, which will invoke the hello() service.  You should now see a greeting that is read from the cloud config server!
+. Spring Cloud Services uses HTTPS for all client-to-service communication. If your Pivotal Cloud Foundry installation is using a self-signed SSL certificate, the certificate will need to be added to the JVM truststore before your client application can consume properties from a Config Server service instance.
 +
+[source,bash]
+----
+CN-Workshop/labs/my_work/cloud-native-spring $ cf set-env cloud-native-spring TRUST_CERTS <YOUR_PCF_API_ENDPOINT>
+CN-Workshop/labs/my_work/cloud-native-spring $ cf restage cloud-native-spring
+----
+
+. Test your application by navigating to the root URL of the application, which will invoke the hello() service.  You should now see a greeting that is read from the cloud config server!
 *Bonjour World!*
 
 . What just happened??  A Spring component within the Spring Cloud Starter Config Client module called a _service connector_ automatically detected that there was a Cloud Config service bound into the application.  The service connector configured the application automatically to connect to the cloud `config-server` and download the configuration and wire it into the application
