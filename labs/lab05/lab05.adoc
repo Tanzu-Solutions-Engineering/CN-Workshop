@@ -6,7 +6,7 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 :spring-boot-version: 1.5.9
-:spring-cloud-services-dependencies-version: 1.6.0.RELEASE
+:spring-cloud-services-dependencies-version: 1.6.3.RELEASE
 :spring-cloud-dependencies-version: Edgware.RELEASE
 
 = Adding Spring Cloud Service Registration and Discovery
