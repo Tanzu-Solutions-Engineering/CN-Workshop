@@ -31,7 +31,6 @@ Add the following to Maven `dependencies`:
     <dependency>
       <groupId>io.pivotal.spring.cloud</groupId>
       <artifactId>spring-cloud-services-starter-config-client</artifactId>
-      <version>{spring-cloud-services-dependencies-version}</version>
     </dependency>
     [...]
   </dependencies>
