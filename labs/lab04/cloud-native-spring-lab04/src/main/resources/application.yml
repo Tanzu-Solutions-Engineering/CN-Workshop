@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: cloud-native-spring
+
+info:
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"
+
+  info:
+    git:
+      mode: full
+  cloudfoundry:
+    enabled: true
+    skip-ssl-validation: false # set to true if using an insecure CF environment
+

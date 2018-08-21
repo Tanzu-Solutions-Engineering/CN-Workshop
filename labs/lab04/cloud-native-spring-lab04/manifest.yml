@@ -1,0 +1,10 @@
+---
+applications:
+- name: cloud-native-spring-mysql
+  random-route: true
+  memory: 768M
+  path: target/cloud-native-spring-lab02-0.0.1-SNAPSHOT.jar
+  env:
+    JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+  services:
+  - mysqldb

@@ -1,5 +1,6 @@
 package io.pivotal.cloudnativespring;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 // Add these imports:
@@ -16,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableJpaRepositories // <---- And this
 @Import(RepositoryRestMvcConfiguration.class) // <---- And this
 public class CloudNativeSpringApplication {
+ 
 	
-
 	public static void main(String[] args) {
 		SpringApplication.run(CloudNativeSpringApplication.class, args);
 	}
