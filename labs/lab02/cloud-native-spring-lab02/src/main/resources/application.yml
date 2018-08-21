@@ -1,0 +1,67 @@
+security: 
+ basic: 
+  enabled: false
+
+management: 
+ security: 
+  enabled: false
+
+spring: 
+ jpa:
+  hibernate:
+   ddl-auto: create
+   naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy 
+  properties: 
+   hibernate: 
+    dialect: org.hibernate.dialect.MySQL5Dialect
+ datasource:
+  initialization-mode: always 
+  platform: mysql
+
+greetingLanguage: English / Spring Config
+---
+spring: 
+ profiles: dev
+greetingLanguage: French / Spring Config
+---
+spring: 
+ profiles: prod
+greetingLanguage: Spanish / Spring Config  
+       
+info: # add this section
+ build:
+   artifact: @project.artifactId@
+   name: @project.name@
+   description: @project.description@
+   version: @project.version@
+management:
+ endpoint:
+   health:
+     show-details: always
+ security:
+   enabled: false
+ info:
+   git:
+     mode: full
+ cloudfoundry:
+   enabled: true
+   skip-ssl-validation: false            
+         
+ endpoints:
+   web:
+     exposure:
+       include: "*"
+
+     
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       

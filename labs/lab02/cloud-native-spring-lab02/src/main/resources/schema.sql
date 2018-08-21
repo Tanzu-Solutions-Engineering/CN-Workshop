@@ -1,0 +1,1 @@
+create table city (id bigint not null auto_increment, county varchar(255) not null, latitude varchar(255), longitude varchar(255), name varchar(255) not null, postal_code varchar(255) not null, state_code varchar(255) not null, primary key (id)) ENGINE= INNODB;
