@@ -5,11 +5,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.pivotal</groupId>
-	<artifactId>cloud-native-spring-lab02</artifactId>
+	<artifactId>cloud-native-spring-lab03</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>cloud-native-spring-lab02</name>
+	<name>cloud-native-spring-lab03</name>
 	<description>Demo project for Spring Boot</description>
 
 	<parent>
@@ -45,8 +45,7 @@
 		<dependency>
    			<groupId>mysql</groupId>
     		<artifactId>mysql-connector-java</artifactId>
-    		<version>5.1.6</version>
-		</dependency>	
+    		</dependency>	
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
