@@ -13,8 +13,9 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RefreshScope
+
 @SpringBootApplication
+@RefreshScope
 @RestController
 @EnableJpaRepositories // <---- And this
 @Import(RepositoryRestMvcConfiguration.class) // <---- And this
@@ -22,12 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 public class CloudNativeSpringApplication {
 
-	@Value("${greeting:Hola}")
-	private String greeting;
-
 	public static void main(String[] args) {
 		SpringApplication.run(CloudNativeSpringApplication.class, args);
 	}
+
+	@Value("${greeting:Hola}")
+	private String greeting;
 
 	@RequestMapping("/")
 	public String hello() {

@@ -33,9 +33,9 @@ management:
     enabled: true
     skip-ssl-validation: false
   endpoints:
-   web:
-    exposure:
-      include: "*"
+    web:
+      exposure:
+        include: "*"
 
      
        
