@@ -13,13 +13,12 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RefreshScope
 @SpringBootApplication
 @RestController
 @EnableJpaRepositories // <---- And this
 @Import(RepositoryRestMvcConfiguration.class) // <---- And this
-
 @EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
-@RefreshScope
 
 public class CloudNativeSpringApplication {
 

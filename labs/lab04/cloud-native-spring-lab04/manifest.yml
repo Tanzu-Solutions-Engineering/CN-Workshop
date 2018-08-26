@@ -1,6 +1,6 @@
 ---
 applications:
-- name: cloud-native-spring-mysql-lab04
+- name: cloud-native-spring-lab04
   random-route: true
   memory: 1G
   timeout: 180 # to give time for the data to import
