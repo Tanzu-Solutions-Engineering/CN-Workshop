@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: cloud-native-spring-ui-lab06
+feign:
+  hystrix:
+    enabled: true
