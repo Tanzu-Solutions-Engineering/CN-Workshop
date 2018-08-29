@@ -233,10 +233,10 @@ Complete:
 ----
 ---
 applications:
-- name: cloud-native-spring
+- name: cloud-native-spring-lab04
   random-route: true
   memory: 768M
-  path: target/cloud-native-spring-0.0.1-SNAPSHOT-exec.jar
+  path: target/cloud-native-spring-lab04-0.0.1-SNAPSHOT-exec.jar
   timeout: 180
   env:
     JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
