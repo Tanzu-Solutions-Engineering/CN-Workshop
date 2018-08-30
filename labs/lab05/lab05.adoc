@@ -110,7 +110,7 @@ Complete:
 ----
 ---
 applications:
-- name: cloud-native-spring
+- name: cloud-native-spring-lab05
   random-route: true
   memory: 768M
   path: target/cloud-native-spring-0.0.1-SNAPSHOT-exec.jar

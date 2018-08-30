@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @EnableJpaRepositories // <---- And this
 @Import(RepositoryRestMvcConfiguration.class) // <---- And this
-@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Lab Demo Application
 
 public class CloudNativeSpringApplication {
 
