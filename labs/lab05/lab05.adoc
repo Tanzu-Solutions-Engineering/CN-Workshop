@@ -246,21 +246,24 @@ Add the following to the Maven project dependencies:
 .cloud-native-spring-ui/pom.xml
 [source,xml]
 ----
+
 <project>
   [...]
   <dependencies>
     [...]
-    <dependency>
-      <groupId>io.pivotal</groupId>
-      <artifactId>cloud-native-spring</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <!-- there is a maven bug that prents this from working without a mvn multi-module project structure. 		
+	<dependency>
+		<groupId>io.pivotal</groupId>
+		<artifactId>cloud-native-spring-lab05</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<exclusions>
+			<exclusion>
+				<groupId>*</groupId>
+				<artifactId>*</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+ -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-rest</artifactId>
@@ -269,6 +272,16 @@ Add the following to the Maven project dependencies:
   </dependencies>
   [...]
 </project>
+----
+
++
+Workaround for mvn bug is to copy the City entity class directly into the cloud-native-spring-ui project.  To remove the auto hibernate features that we could not exclude change the City Entity to a Json annotated bean and remove the JPA annotations. :
++
+[source, java]
+----
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class City {
+[....]
 ----
 
 +
@@ -284,16 +297,6 @@ Finally, for consistency's sake, we'll produce an exec classified artifact as we
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>build-info</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <classifier>exec</classifier>
-        </configuration>
       </plugin>
       [...]
     </plugins>
@@ -344,7 +347,6 @@ import io.pivotal.cloudnativespring.domain.City;
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
-@EnableCircuitBreaker
 public class CloudNativeSpringUiApplication {
 
     public static void main(String[] args) {
@@ -450,10 +452,6 @@ applications:
   services:
   - service-registry
 ----
-. create the circuit-breaker service
-+
-[source,bash]
-cf create-service p-circuit-breaker-dashboard standard circuit-breaker-dashboard 
 
 . Push application into Cloud Foundry
 +

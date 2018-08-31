@@ -31,11 +31,21 @@
 
 	<dependencies>
 
-		<!-- For Code Reuse of City Domain Object from Lab05 Spring Boot Application 
-			START -->
-		<!-- <dependency> <groupId>io.pivotal</groupId> <artifactId>cloud-native-spring-lab05</artifactId> 
-			<version>0.0.1-SNAPSHOT</version> <exclusions> <exclusion> <groupId>*</groupId> 
-			<artifactId>*</artifactId> </exclusion> </exclusions> </dependency> -->
+	<!-- For Code Reuse of City Domain Object from Lab05 Spring Boot Application 
+		START -->
+<!-- 		
+	<dependency>
+		<groupId>io.pivotal</groupId>
+		<artifactId>cloud-native-spring-lab05</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<exclusions>
+			<exclusion>
+				<groupId>*</groupId>
+				<artifactId>*</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+ -->	
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
