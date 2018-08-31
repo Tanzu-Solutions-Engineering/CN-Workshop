@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 public class CloudNativeSpringApplication {
 
+	CloudNativeSpringApplication() {}
+	
 	public static void main(String[] args) {
 		SpringApplication.run(CloudNativeSpringApplication.class, args);
 	}

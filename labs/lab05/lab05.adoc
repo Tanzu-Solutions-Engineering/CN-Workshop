@@ -39,6 +39,7 @@ In this lab we'll utilize Spring Boot and Spring Cloud to allow our application 
 @EnableJpaRepositories
 @EnableDiscoveryClient // <---- Add this
 @Import(RepositoryRestMvcAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringApplication {
     [...]
 }
@@ -65,6 +66,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableJpaRepositories
 @EnableDiscoveryClient
 @Import(RepositoryRestMvcConfiguration.class)
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringApplication {
 
     @Value("${greeting:Hola}")
@@ -100,6 +102,7 @@ image::images/registry1.jpg[]
 [source,yml]
 ----
   services:
+  - mysqldb
   - config-server
   - service-registry # <-- Add this
 ----
@@ -118,6 +121,7 @@ applications:
   env:
     JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
   services:
+  - mysqldb
   - config-server
   - service-registry
 ----
@@ -138,7 +142,7 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw install
 CN-Workshop/labs/my_work/cloud-native-spring $ cf push
 ----
 
-. If we now test our application URLs we will no change.  However, if we view the Service Registry dashboard (accessible from the *Manage* link in Apps Manager) you will see that a service named `CLOUD-NATIVE-SPRING` has registered:
+. If we now test our application URLs we will not see any changes.  However, if we view the Service Registry dashboard (accessible from the *Manage* link in Apps Manager) you will see that a service named `CLOUD-NATIVE-SPRING-LAB05` has registered:
 +
 image::images/registry2.jpg[]
 
@@ -180,7 +184,7 @@ Your directory structure should now look like:
 CN-Workshop:
 ├── labs
 │   ├── my_work
-│   │   ├── cloud-native-spring
+│   │   ├── cloud-native-spring-lab05
 │   │   ├── cloud-native-spring-ui
 ----
 
@@ -340,6 +344,7 @@ import io.pivotal.cloudnativespring.domain.City;
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
+@EnableCircuitBreaker
 public class CloudNativeSpringUiApplication {
 
     public static void main(String[] args) {
@@ -412,10 +417,6 @@ Add the following to your Spring Boot configuration:
 spring:
   application:
     name: cloud-native-spring-ui
-
-security:
-  basic:
-    enabled: false
 ----
 
 == Deploy and test application
@@ -449,6 +450,10 @@ applications:
   services:
   - service-registry
 ----
+. create the circuit-breaker service
++
+[source,bash]
+cf create-service p-circuit-breaker-dashboard standard circuit-breaker-dashboard 
 
 . Push application into Cloud Foundry
 +

@@ -1,3 +1,6 @@
+# for local mode
+server:
+  port: 8081
 spring:
   application:
     name: cloud-native-spring-ui

@@ -160,9 +160,6 @@ management:
     enabled: true
     skip-ssl-validation: false # set to true if using an insecure CF environment
 
-security:
-  basic:
-    enabled: false
 ----
 
 . Run the _cloud-native-spring_ Application and verify dynamic config is working:
@@ -256,6 +253,6 @@ greeting: Bonjour
 Once the the spring-boot shell and spring-cloud-cli plugin are installed you can launch your services through the following command:
 +
 [source,bash]
-spring cloud configserver eureka
+spring cloud configserver
 ----
 . Next we'll learn how to register our service with a Service Registry and load balance requests using Spring Cloud components.
