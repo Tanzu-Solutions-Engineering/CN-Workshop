@@ -1,7 +1,9 @@
 package io.pivotal.cloudnativespring;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 // Add these imports:
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @EnableJpaRepositories // <---- And this
 @Import(RepositoryRestMvcConfiguration.class) // <---- And this
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Lab Demo Application
 public class CloudNativeSpringApplication {
  
 	
