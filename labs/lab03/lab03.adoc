@@ -249,10 +249,10 @@ git.build.user.email=user@example.com
 ----
 info: # add this section
   build:
-    artifact: @project.artifactId@
-    name: @project.name@
-    description: @project.description@
-    version: @project.version@
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"
 ----
 +
 These will add the project’s Maven coordinates to the http://localhost:8080/info[/info] endpoint. The Spring Boot Maven plugin will cause them to automatically be replaced in the assembled JAR.
@@ -266,7 +266,7 @@ NOTE: If Spring Tool Suite reports a problem with the application.yml due to @ c
 CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 ----
 
-. Browse to the http://localhost:8080/info[/info] endpoint. Build information is now included:
+. Browse to the http://localhost:8080/actuator/info[/info] endpoint. Build information is now included:
 +
 [source,json]
 ----
@@ -415,9 +415,9 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 
 == Metrics
 
-Spring Boot provides a http://localhost:8080/metrics[/metrics] endpoint that exposes several automatically collected metrics for your application. It also allows for the creation of custom metrics.
+Spring Boot provides a http://localhost:8080/actuator/metrics[/metrics] endpoint that exposes several automatically collected metrics for your application. It also allows for the creation of custom metrics.
 
-. Browse to the http://localhost:8080/metrics[/metrics] endpoint. Review the metrics exposed:
+. Browse to the http://localhost:8080/actuator/metrics[/metrics] endpoint. Review the metrics exposed:
 +
 [source,json]
 ----

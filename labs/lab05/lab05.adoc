@@ -128,7 +128,7 @@ applications:
 
 == Deploy and test application
 
-. For the 2nd half of this lab we'll need our `cloud-native-spring` Maven artifact accessible in our local Maven repository. Rebuild and install the artifact with the following command:
+. For the 2nd half of this lab we'll need our `cloud-native-spring-lab05` Maven artifact accessible in our local Maven repository. Rebuild and install the artifact with the following command:
 +
 [source,bash]
 ----
@@ -139,7 +139,7 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw install
 +
 [source,bash]
 ----
-CN-Workshop/labs/my_work/cloud-native-spring $ cf push
+CN-Workshop/labs/my_work/cloud-native-spring-lab05 $ cf push
 ----
 
 . If we now test our application URLs we will not see any changes.  However, if we view the Service Registry dashboard (accessible from the *Manage* link in Apps Manager) you will see that a service named `CLOUD-NATIVE-SPRING-LAB05` has registered:
@@ -311,7 +311,7 @@ Add the following interface declaration to the `CloudNativeSpringUiApplication` 
 +
 [source,java,numbered]
 ----
-    @FeignClient("cloud-native-spring")
+    @FeignClient("cloud-native-spring-lab05")
     public interface CityClient {
         @GetMapping(value = "/cities", consumes = "application/hal+json")
         Resources<City> getCities();

@@ -2,7 +2,7 @@ spring:
   #profiles:
       #active: cloud
   jpa:
-    show-sql: false
+    show-sql: true
     properties:
       hibernate.dialect: "org.hibernate.dialect.MySQL55Dialect"
       #hibernate.hbm2ddl.import_files: import.sql
