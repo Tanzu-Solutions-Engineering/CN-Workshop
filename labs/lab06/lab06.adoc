@@ -35,6 +35,7 @@ In this lab we'll utilize Spring Boot and Spring Cloud to make our UI Applicatio
 @EnableFeignClients
 @EnableDiscoveryClient
 @EnableCircuitBreaker // <---- Add this
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringUiApplication {
     [...]
 }
@@ -91,13 +92,14 @@ import io.pivotal.cloudnativespring.domain.City;
 @EnableFeignClients
 @EnableDiscoveryClient
 @EnableCircuitBreaker
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringUiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(CloudNativeSpringUiApplication.class, args);
     }
 
-    @FeignClient(name = "cloud-native-spring", fallback = CityClientFallback.class)
+    @FeignClient(name = "cloud-native-spring-lab06", fallback = CityClientFallback.class)
     public interface CityClient {
         @GetMapping(value = "/cities", consumes = "application/hal+json")
         Resources<City> getCities();
@@ -131,15 +133,12 @@ Completed:
 ----
 spring:
   application:
-    name: cloud-native-spring-ui
+    name: cloud-native-spring-ui-lab06
 
 feign:
   hystrix:
     enabled: true
 
-security:
-  basic:
-    enabled: false
 ----
 
 == Create the Circuit Breaker Dashboard
@@ -157,7 +156,7 @@ image::images/dash.jpg[]
 
 . We will now bind our application to our `circuit-breaker-dashboard` within our Cloud Foundry deployment manifest:
 +
-.cloud-native-spring-ui/manifest.yml
+.cloud-native-spring-ui-lab06/manifest.yml
 [source,yml]
 ----
   services:
@@ -189,7 +188,7 @@ image::images/empty.jpg[]
 +
 [source,bash]
 ----
-CN-Workshop/labs/my_work/cloud-native-spring $ cf start cloud-native-spring
+CN-Workshop/labs/my_work/cloud-native-spring $ cf start cloud-native-spring-lab06
 ----
 
 . Refresh the UI app and you should once again see a table listing the first page of cities.

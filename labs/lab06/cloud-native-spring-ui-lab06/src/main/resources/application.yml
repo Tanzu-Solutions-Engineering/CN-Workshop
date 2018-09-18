@@ -1,0 +1,9 @@
+# to avoid port conflict with local workstation spring-cloud-cli
+server:
+  port: 8081
+spring:
+  application:
+    name: cloud-native-spring-ui-lab06
+feign:
+  hystrix:
+    enabled: true

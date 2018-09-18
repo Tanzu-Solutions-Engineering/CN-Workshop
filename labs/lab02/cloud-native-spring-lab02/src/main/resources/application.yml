@@ -1,0 +1,50 @@
+spring:
+  #profiles:
+      #active: cloud
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.dialect: "org.hibernate.dialect.MySQL55Dialect"
+      #hibernate.hbm2ddl.import_files: import.sql
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    #url: "jdbc:mysql://x.x.x.x:3306/cf_089d7116_xxxxxxxxxxxx"
+    #username: "user"
+    #password: "pass"
+    initialization-mode: always
+
+info: # add this section
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"
+management:
+  endpoint:
+    health:
+      show-details: always
+  info:
+    git:
+      mode: full
+  cloudfoundry:
+    enabled: true
+    skip-ssl-validation: false
+  endpoints:
+   web:
+    exposure:
+      include: "*"
+
+     
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       

@@ -67,7 +67,7 @@ Add the following to Maven `dependencies`:
 </project>
 ----
 
-. Add an `@Value` annotation, private field, and associated usage to the `CloudNativeSpringApplication` class.
+. Add an `@Value` annotation, private field, and associated usage to the `CloudNativeSpringApplication` class. This makes 'Hola' the default value of greeting. 
 +
 .cloud-native-spring/src/main/java/io/pivotal/CloudNativeSpringApplication.java
 [source,java,numbered]
@@ -77,7 +77,7 @@ Add the following to Maven `dependencies`:
 
     @RequestMapping("/")
     public String hello() {
-        return greeting + " World!";
+        return String.join(" ", greeting, " World!";
     }
 ----
 +
@@ -101,6 +101,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @EnableJpaRepositories
 @Import(RepositoryRestMvcConfiguration.class)
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringApplication {
 
     @Value("${greeting:Hola}")
@@ -119,16 +120,6 @@ public class CloudNativeSpringApplication {
 
 . When we introduced the Spring Cloud Services Starter Config Client dependency Spring Security will also be included (Config servers will be protected by OAuth2).  However, this will also enable basic authentication to all our service endpoints.
 +
-Add the following to your Spring Boot configuration:
-+
-.cloud-native-spring/src/main/resources/application.yml
-[source,yaml]
-----
-security:
-  basic:
-    enabled: false
-----
-
 . We'll also want to give our Spring Boot application a name so that it can lookup application-specific configuration from the config server later.
 +
 Add the following to your Spring Boot configuration:
@@ -138,7 +129,7 @@ Add the following to your Spring Boot configuration:
 ----
 spring:
   application:
-    name: cloud-native-spring
+    name: cloud-native-spring-04
 ----
 
 . Complete YML:
@@ -160,8 +151,6 @@ endpoints:
   sensitive: false
 
 management:
-  security:
-    enabled: false
   info:
     git:
       mode: full
@@ -169,9 +158,6 @@ management:
     enabled: true
     skip-ssl-validation: false # set to true if using an insecure CF environment
 
-security:
-  basic:
-    enabled: false
 ----
 
 . Run the _cloud-native-spring_ Application and verify dynamic config is working:
@@ -189,36 +175,16 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 
 == Create Spring Cloud Config Server instance
 
-. Now that our application is ready to read its config from a cloud config server, we need to deploy one!  This can be done through Cloud Foundry using the services marketplace.  Browse to the marketplace in Pivotal Cloud Foundry Apps Manager, navigate to the space you have been using to push your app, and select Config Server:
+. Now that our application is ready to read its config from a cloud config server, we need to deploy one!  This can be done through Cloud Foundry's cli using the folloowing commands:
++
+cf create-service p-config-server standard config-server -c '{"git": { "uri": "https://github.com/<demo-domain>/CN-Workshop", "label": "config" } }'
+cf set-env cloud-native-spring-lab04 TRUST_CERTS api.
+
+. After we create the service instance you can navigate via the apps manager to your space and select the config-server service.  Now select the `manage` option, which is in the upper right corner of the view.
 +
 image::images/config-scs.jpg[]
 
-. In the resulting details page, select the _standard_, single tenant plan.  Name the instance `config-server`, select the space that you've been using to push all your applications.  At this time you don't need to select a application to bind to the service:
-+
-image::images/config-scs1.jpg[]
-
-. After we create the service instance you'll be redirected to your _Space_ landing page that lists your apps and services.  The config server is deployed on-demand and will take a few moments to deploy.
-+
-Once the message _Creating service instance..._ disappears, click on the service you provisioned.
-+
-Select the *Manage* link towards the top of the resulting screen.  This view shows the instance id and a JSON document showing the current configuration. The `count` element shows how many instances of Config Server we have provisioned:
-+
-image::images/config-scs2.jpg[]
-
-. We now need to update the service instance with our GIT repository information where our configuration files are stored. For this example, we are using the `config` branch of our workshop repository.
-+
-Using the Cloud Foundry CLI execute the following update service command:
-+
-[source,bash]
-----
-CN-Workshop/labs/my_work/cloud-native-spring $ cf update-service config-server -c '{"git": { "uri": "https://github.com/Pivotal-Field-Engineering/CN-Workshop", "label": "config" } }'
-----
-
-. Refresh you Config Server management page and you will see the following message.  Wait until the screen refreshes and the service is reintialized:
-+
-image::images/config-scs3.jpg[]
-
-. We will now bind our application to our `config-server`.  Add these entries to our Cloud Foundry manifest:
+. We can now bind our application to our `config-server` or as shown below it will be bound via the `cf push`.  Add these entries to our Cloud Foundry manifest:
 +
 .cloud-native-spring/manifest.yml
 [source,yml]
@@ -233,10 +199,10 @@ Complete:
 ----
 ---
 applications:
-- name: cloud-native-spring
+- name: cloud-native-spring-lab04
   random-route: true
   memory: 768M
-  path: target/cloud-native-spring-0.0.1-SNAPSHOT-exec.jar
+  path: target/cloud-native-spring-lab04-0.0.1-SNAPSHOT-exec.jar
   timeout: 180
   env:
     JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
@@ -273,11 +239,20 @@ CN-Workshop/labs/my_work/cloud-native-spring $ cf restage cloud-native-spring
 
 . What just happened??  A Spring component within the Spring Cloud Starter Config Client module called a _service connector_ automatically detected that there was a Cloud Config service bound into the application.  The service connector configured the application automatically to connect to the cloud `config-server` and download the configuration and wire it into the application
 
-. If you navigate to the GIT repo we specified for our configuration, https://github.com/Pivotal-Field-Engineering/CN-Workshop/tree/config, you'll see a file named `cloud-native-spring.yml`.  This filename is the same as our `spring.application.name` value for our Spring Boot application.  The configuration is read from this file, in our case the following property:
+. If you navigate to the GIT repo we specified for our configuration, https://github.com/Pivotal-Field-Engineering/CN-Workshop/tree/config, you'll see a file named `cloud-native-spring-lab04.yml`.  This filename is the same as our `spring.application.name` value for our Spring Boot application.  The configuration is read from this file, in our case the following property:
 +
 [source,yaml]
 ----
 greeting: Bonjour
 ----
+. There is an option to run spring cloud services locally through the use of the `spring-cloud-cli`. You can find the install instructions for the spring boot shell here https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started-installing-spring-boot.html#getting-started-installing-the-cli. 
+. After the spring-boot shell is installed the spring-cloud-cli installation instructions can be found here https://cloud.spring.io/spring-cloud-cli/
 
+Once the the spring-boot shell and spring-cloud-cli plugin are installed you can launch your services through the following command:
++
+[source,bash]
+spring cloud configserver
+----
+Check your localhost:8080 and you should see the same result of bonjour except the you are now pointing at a local config-repo.
+ 
 . Next we'll learn how to register our service with a Service Registry and load balance requests using Spring Cloud components.

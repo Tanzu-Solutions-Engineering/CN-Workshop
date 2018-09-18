@@ -39,6 +39,7 @@ In this lab we'll utilize Spring Boot and Spring Cloud to allow our application 
 @EnableJpaRepositories
 @EnableDiscoveryClient // <---- Add this
 @Import(RepositoryRestMvcAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringApplication {
     [...]
 }
@@ -65,6 +66,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableJpaRepositories
 @EnableDiscoveryClient
 @Import(RepositoryRestMvcConfiguration.class)
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class }) // To Bypass Security in the Demo Application
 public class CloudNativeSpringApplication {
 
     @Value("${greeting:Hola}")
@@ -100,6 +102,7 @@ image::images/registry1.jpg[]
 [source,yml]
 ----
   services:
+  - mysqldb
   - config-server
   - service-registry # <-- Add this
 ----
@@ -110,7 +113,7 @@ Complete:
 ----
 ---
 applications:
-- name: cloud-native-spring
+- name: cloud-native-spring-lab05
   random-route: true
   memory: 768M
   path: target/cloud-native-spring-0.0.1-SNAPSHOT-exec.jar
@@ -118,13 +121,14 @@ applications:
   env:
     JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
   services:
+  - mysqldb
   - config-server
   - service-registry
 ----
 
 == Deploy and test application
 
-. For the 2nd half of this lab we'll need our `cloud-native-spring` Maven artifact accessible in our local Maven repository. Rebuild and install the artifact with the following command:
+. For the 2nd half of this lab we'll need our `cloud-native-spring-lab05` Maven artifact accessible in our local Maven repository. Rebuild and install the artifact with the following command:
 +
 [source,bash]
 ----
@@ -135,10 +139,10 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw install
 +
 [source,bash]
 ----
-CN-Workshop/labs/my_work/cloud-native-spring $ cf push
+CN-Workshop/labs/my_work/cloud-native-spring-lab05 $ cf push
 ----
 
-. If we now test our application URLs we will no change.  However, if we view the Service Registry dashboard (accessible from the *Manage* link in Apps Manager) you will see that a service named `CLOUD-NATIVE-SPRING` has registered:
+. If we now test our application URLs we will not see any changes.  However, if we view the Service Registry dashboard (accessible from the *Manage* link in Apps Manager) you will see that a service named `CLOUD-NATIVE-SPRING-LAB05` has registered:
 +
 image::images/registry2.jpg[]
 
@@ -180,7 +184,7 @@ Your directory structure should now look like:
 CN-Workshop:
 ├── labs
 │   ├── my_work
-│   │   ├── cloud-native-spring
+│   │   ├── cloud-native-spring-lab05
 │   │   ├── cloud-native-spring-ui
 ----
 
@@ -242,21 +246,24 @@ Add the following to the Maven project dependencies:
 .cloud-native-spring-ui/pom.xml
 [source,xml]
 ----
+
 <project>
   [...]
   <dependencies>
     [...]
-    <dependency>
-      <groupId>io.pivotal</groupId>
-      <artifactId>cloud-native-spring</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <!-- there is a maven bug that prents this from working without a mvn multi-module project structure. 		
+	<dependency>
+		<groupId>io.pivotal</groupId>
+		<artifactId>cloud-native-spring-lab05</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<exclusions>
+			<exclusion>
+				<groupId>*</groupId>
+				<artifactId>*</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+ -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-rest</artifactId>
@@ -265,6 +272,16 @@ Add the following to the Maven project dependencies:
   </dependencies>
   [...]
 </project>
+----
+
++
+Workaround for mvn bug is to copy the City entity class directly into the cloud-native-spring-ui project.  To remove the auto hibernate features that we could not exclude change the City Entity to a Json annotated bean and remove the JPA annotations. :
++
+[source, java]
+----
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class City {
+[....]
 ----
 
 +
@@ -280,16 +297,6 @@ Finally, for consistency's sake, we'll produce an exec classified artifact as we
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>build-info</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <classifier>exec</classifier>
-        </configuration>
       </plugin>
       [...]
     </plugins>
@@ -304,7 +311,7 @@ Add the following interface declaration to the `CloudNativeSpringUiApplication` 
 +
 [source,java,numbered]
 ----
-    @FeignClient("cloud-native-spring")
+    @FeignClient("cloud-native-spring-lab05")
     public interface CityClient {
         @GetMapping(value = "/cities", consumes = "application/hal+json")
         Resources<City> getCities();
@@ -412,10 +419,6 @@ Add the following to your Spring Boot configuration:
 spring:
   application:
     name: cloud-native-spring-ui
-
-security:
-  basic:
-    enabled: false
 ----
 
 == Deploy and test application

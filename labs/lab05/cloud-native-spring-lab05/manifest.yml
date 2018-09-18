@@ -1,0 +1,13 @@
+---
+applications:
+- name: cloud-native-spring-lab05
+  random-route: true
+  memory: 1G
+  timeout: 180 # to give time for the data to import
+  path: target/cloud-native-spring-lab05-0.0.1-SNAPSHOT.jar
+  env:
+    JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+  services: 
+      - mysqldb
+      - config-server
+      - service-registry
