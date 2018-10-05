@@ -312,8 +312,9 @@ Add the following to your Spring Boot configuration:
 [source,yaml]
 ----
 management: # add this section
-  security:
-    enabled: false
+  endpoint:
+    health:
+      show-details: always
 ----
 
 . Build and run the _cloud-native-spring_ application:
