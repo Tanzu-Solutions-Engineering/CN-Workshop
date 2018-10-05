@@ -36,8 +36,10 @@ Add the following to your Spring Boot configuration:
 .cloud-native-spring/src/main/resources/application.yml
 [source,yaml]
 ----
-endpoints: # add this section
-  sensitive: false
+management:
+  endpoints:
+    web:
+      include: "*"  
 ----
 
 . Run the updated application:
@@ -49,37 +51,37 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 +
 Try out the following endpoints. The output is omitted here because it can be quite large:
 
-http://localhost:8080/health::
+http://localhost:8080/actuator/health::
 Displays Application and Datasource health information.  This can be customized based on application functionality, which we'll do later.
 
-http://localhost:8080/beans::
+http://localhost:8080/actuator/beans::
 Dumps all of the beans in the Spring context.
 
-http://localhost:8080/autoconfig::
+http://localhost:8080/actuator/autoconfig::
 Dumps all of the auto-configuration performed as part of application bootstrapping.
 
-http://localhost:8080/configprops::
+http://localhost:8080/actuator/configprops::
 Displays a collated list of all @ConfigurationProperties.
 
-http://localhost:8080/env::
+http://localhost:8080/actuator/env::
 Dumps the application’s shell environment as well as all Java system properties.
 
-http://localhost:8080/mappings::
+http://localhost:8080/actuator/mappings::
 Dumps all URI request mappings and the controller methods to which they are mapped.
 
-http://localhost:8080/dump::
+http://localhost:8080/actuator/dump::
 Performs a thread dump.
 
-http://localhost:8080/trace::
+http://localhost:8080/actuator/trace::
 Displays trace information (by default the last few HTTP requests).
 
 . Stop the _cloud-native-spring_ application.
 
 == Include Version Control Info
 
-Spring Boot provides a http://localhost:8080/info[/info] endpoint that allows the exposure of arbitrary metadata. By default this information is empty, however, we can use _actuator_ to expose information about the specific build and version control coordinates for a given deployment.
+Spring Boot provides a http://localhost:8080/actuator/info[/actuator/info] endpoint that allows the exposure of arbitrary metadata. By default this information is empty, however, we can use _actuator_ to expose information about the specific build and version control coordinates for a given deployment.
 
-. The `git-commit-id-plugin` adds Git branch and commit coordinates to the http://localhost:8080/info[/info] endpoint.
+. The `git-commit-id-plugin` adds Git branch and commit coordinates to the http://localhost:8080/actuactor/info[/actuator/info] endpoint.
 +
 Add the `git-commit-id-plugin` to Maven build plugins:
 +
@@ -95,7 +97,7 @@ Add the `git-commit-id-plugin` to Maven build plugins:
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <configuration>
-          <dotGitDirectory>../../../.git</dotGitDirectory>
+          <dotGitDirectory>.git</dotGitDirectory>
         </configuration>
       </plugin>
       [...]
@@ -105,7 +107,7 @@ Add the `git-commit-id-plugin` to Maven build plugins:
 </project>
 ----
 +
-NOTE: The path `../../../.git` refers to the `.git` directory at the root of the lab materials repo. When using in your own project you'll need to adjust the path to your projects `.git` folder location.
+NOTE: The path `.git` refers to the `.git` directory at the root of the lab materials repo. When using in your own project you'll need to adjust the path to your projects `.git` folder location.
 +
 Completed Maven configuration:
 +
@@ -182,7 +184,7 @@ Completed Maven configuration:
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <configuration>
-          <dotGitDirectory>../../../.git</dotGitDirectory>
+          <dotGitDirectory>.git</dotGitDirectory>
         </configuration>
       </plugin>
     </plugins>
