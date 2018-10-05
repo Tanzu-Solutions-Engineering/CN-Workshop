@@ -39,7 +39,9 @@ Add the following to your Spring Boot configuration:
 management:
   endpoints:
     web:
-      include: "*"  
+      exposure:
+        include: "*"
+        exclude: ["beans", "env"] 
 ----
 
 . Run the updated application:
