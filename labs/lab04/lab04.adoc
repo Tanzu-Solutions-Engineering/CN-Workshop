@@ -5,8 +5,8 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-cloud-services-dependencies-version: 1.6.3.RELEASE
-:spring-cloud-dependencies-version: Edgware.RELEASE
+:spring-cloud-services-dependencies-version: 2.0.0.RELEASE
+:spring-cloud-dependencies-version: Finchley.RELEASE
 
 = Adding Spring Cloud Config Server
 
@@ -29,9 +29,17 @@ Add the following to Maven `dependencies`:
   <dependencies>
     [...]
     <dependency>
-      <groupId>io.pivotal.spring.cloud</groupId>
-      <artifactId>spring-cloud-services-starter-config-client</artifactId>
-    </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.pivotal.spring.cloud</groupId>
+			<artifactId>spring-cloud-services-starter-config-client</artifactId>
+		</dependency>
     [...]
   </dependencies>
   [...]
@@ -117,16 +125,32 @@ public class CloudNativeSpringApplication {
 }
 ----
 
-. When we introduced the Spring Cloud Services Starter Config Client dependency Spring Security will also be included (Config servers will be protected by OAuth2).  However, this will also enable basic authentication to all our service endpoints.
+. When we introduced the Spring Cloud Services Starter Config Client dependency Spring Security will also be included (Config servers will be protected by OAuth2).  However, this will also enable basic authentication to all our service endpoints. For simplicity, allow anonymous access to all endpoint, `/actuator` and `/`
+
++
+Add a new `SecurityConfiguration` class under `io.pivotal.cloudnativespring.securty` package.
 +
 Add the following to your Spring Boot configuration:
 +
-.cloud-native-spring/src/main/resources/application.yml
-[source,yaml]
+.cloud-native-spring/src/main/java/io/pivotal/cloudnativespring/security/SecurityConfiguration.java
+[source,java]
 ----
-security:
-  basic:
-    enabled: false
+package io.pivotal.cloudnativespring.security;
+
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+@EnableWebSecurity
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.antMatcher("/**")
+            .anonymous();
+    }
+
+}
 ----
 
 . We'll also want to give our Spring Boot application a name so that it can lookup application-specific configuration from the config server later.
@@ -151,27 +175,25 @@ spring:
 
 info:
   build:
-    artifact: "@project.artifactId@"
-    name: "@project.name@"
-    description: "@project.description@"
-    version: "@project.version@"
-
-endpoints:
-  sensitive: false
+    artifact: @project.artifactId@
+    name: @project.name@
+    description: @project.description@
+    version: @project.version@
 
 management:
-  security:
-    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
   info:
     git:
       mode: full
   cloudfoundry:
     enabled: true
-    skip-ssl-validation: false # set to true if using an insecure CF environment
-
-security:
-  basic:
-    enabled: false
+    skip-ssl-validation: false
 ----
 
 . Run the _cloud-native-spring_ Application and verify dynamic config is working:
@@ -281,3 +303,6 @@ greeting: Bonjour
 ----
 
 . Next we'll learn how to register our service with a Service Registry and load balance requests using Spring Cloud components.
+
+Lets proceed to link:../lab05/lab05.adoc[Lab 5] or back to link:../../README.adoc[Home]
+
