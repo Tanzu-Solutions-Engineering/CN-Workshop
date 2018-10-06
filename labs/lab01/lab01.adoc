@@ -239,4 +239,4 @@ user-space  cloud-native-spring-liqxfuds  cfapps.io                        cloud
 ====
 *Congratulations!* You’ve just completed your first Spring Boot application. 
 
-Let proceed to link:../lab01/lab02.adoc[Lab 2] or back to link:../../README.adoc[Home]
+Lets proceed to link:../lab01/lab02.adoc[Lab 2] or back to link:../../README.adoc[Home]
