@@ -479,4 +479,4 @@ buildpack: java_buildpack
 $ curl -i https://cloud-native-spring-<random>.cfapps.io/cities
 ----
 
-Let proceed to link:../lab03/lab03.adoc[Lab 3] or back to link:../../README.adoc[Home]
+Lets proceed to link:../lab03/lab03.adoc[Lab 3] or back to link:../../README.adoc[Home]
