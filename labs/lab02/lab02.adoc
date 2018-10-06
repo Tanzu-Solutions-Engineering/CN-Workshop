@@ -297,17 +297,35 @@ Next we'll add searching capabilities.
 .cloud-native-spring/src/main/java/io/pivotal/cloudnativespring/repositories/CityRepository.java
 [source,java,numbered]
 ----
-@RestResource(path = "name", rel = "name")
-Page<City> findByNameIgnoreCase(@Param("q") String name, Pageable pageable);
+package io.pivotal.cloudnativespring.repositories;
 
-@RestResource(path = "nameContains", rel = "nameContains")
-Page<City> findByNameContainsIgnoreCase(@Param("q") String name, Pageable pageable);
+import io.pivotal.cloudnativespring.domain.City;
 
-@RestResource(path = "state", rel = "state")
-Page<City> findByStateCodeIgnoreCase(@Param("q") String stateCode, Pageable pageable);
+// Add imports from here
+import org.springframework.data.domain.Page; 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
+// Until here
 
-@RestResource(path = "postalCode", rel = "postalCode")
-Page<City> findByPostalCode(@Param("q") String postalCode, Pageable pageable);
+@RepositoryRestResource(collectionResourceRel = "cities", path = "cities")
+public interface CityRepository extends PagingAndSortingRepository<City, Long> {
+  // And add these finder methods from here
+  @RestResource(path = "name", rel = "name")
+  Page<City> findByNameIgnoreCase(@Param("q") String name, Pageable pageable);
+
+  @RestResource(path = "nameContains", rel = "nameContains")
+  Page<City> findByNameContainsIgnoreCase(@Param("q") String name, Pageable pageable);
+
+  @RestResource(path = "state", rel = "state")
+  Page<City> findByStateCodeIgnoreCase(@Param("q") String stateCode, Pageable pageable);
+
+  @RestResource(path = "postalCode", rel = "postalCode")
+  Page<City> findByPostalCode(@Param("q") String postalCode, Pageable pageable);
+  // Until here
+}
 ----
 
 . Run the application
@@ -460,3 +478,5 @@ buildpack: java_buildpack
 ----
 $ curl -i https://cloud-native-spring-<random>.cfapps.io/cities
 ----
+
+Let proceed to link:../lab03/lab03.adoc[Lab 3] or back to link:../../README.adoc[Home]
