@@ -632,4 +632,4 @@ image::images/logging.jpg[]
 
 *Congratulations!* You’ve just learned how to add health and metrics to any Spring Boot application.
 
-Let proceed to link:../lab04/lab04.adoc[Lab 4] or back to link:../../README.adoc[Home]
+Lets proceed to link:../lab04/lab04.adoc[Lab 4] or back to link:../../README.adoc[Home]
