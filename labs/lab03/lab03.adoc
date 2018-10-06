@@ -5,7 +5,7 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-boot-version: 1.5.9
+:spring-boot-version: 2.0.5
 
 = Enhancing with Metrics
 
@@ -28,8 +28,7 @@ Spring Boot includes a number of additional features to help you monitor and man
   <artifactId>spring-boot-starter-actuator</artifactId>
 </dependency>
 ----
-
-. By default Spring Boot will use Spring Security to protect these management endpoints (which is a good thing!)  Though you wouldn't want to disable this in production, we'll do so in this sample app to make demonstration a bit easier and simpler.
+. By default Spring Boot will only exposes `health` and `info` endpoint over http. We will expose rest of the endpoints for this lab. **But** in production you would not expose all these endpoints and additionally secure them.  You can read more about that in the https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html[documentation]. In this lab, for simplicity, we will expose them all without securing. 
 +
 Add the following to your Spring Boot configuration:
 +
@@ -41,7 +40,6 @@ management:
     web:
       exposure:
         include: "*"
-        exclude: ["beans", "env"] 
 ----
 
 . Run the updated application:
@@ -99,7 +97,7 @@ Add the `git-commit-id-plugin` to Maven build plugins:
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <configuration>
-          <dotGitDirectory>.git</dotGitDirectory>
+          <dotGitDirectory>../../../.git</dotGitDirectory>
         </configuration>
       </plugin>
       [...]
@@ -158,15 +156,9 @@ Completed Maven configuration:
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -186,7 +178,7 @@ Completed Maven configuration:
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
         <configuration>
-          <dotGitDirectory>.git</dotGitDirectory>
+          <dotGitDirectory>../../../.git</dotGitDirectory>
         </configuration>
       </plugin>
     </plugins>
@@ -203,7 +195,7 @@ Completed Maven configuration:
 CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 ----
 
-. Browse to the http://localhost:8080/info[info] endpoint. Git commit information is now included:
+. Browse to the http://localhost:8080/actuator/info[/actuator/info] endpoint. Git commit information is now included:
 +
 [source,json]
 ----
@@ -222,7 +214,7 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 +
 *What Just Happened?*
 +
-By including the `git-commit-id-plugin`, details about git commit information will be included in the http://localhost:8080/info[/info] endpoint. Git information is captured in a `git.properties` file that is generated with the build.
+By including the `git-commit-id-plugin`, details about git commit information will be included in the http://localhost:8080/actuator/info[/actuator/info] endpoint. Git information is captured in a `git.properties` file that is generated with the build.
 +
 For reference, review the generated file:
 +
@@ -253,7 +245,7 @@ info: # add this section
     version: @project.version@
 ----
 +
-These will add the project’s Maven coordinates to the http://localhost:8080/info[/info] endpoint. The Spring Boot Maven plugin will cause them to automatically be replaced in the assembled JAR.
+These will add the project’s Maven coordinates to the http://localhost:8080/actuator/info[/actuator/info] endpoint. The Spring Boot Maven plugin will cause them to automatically be replaced in the assembled JAR.
 +
 NOTE: If Spring Tool Suite reports a problem with the application.yml due to @ character the problem can safely be ignored.  If you _really_ want to git rid of the error message, wrap the values in quotes. Example: `artifact: "@project.artifactId@"`
 
@@ -264,7 +256,7 @@ NOTE: If Spring Tool Suite reports a problem with the application.yml due to @ c
 CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 ----
 
-. Browse to the http://localhost:8080/info[/info] endpoint. Build information is now included:
+. Browse to the http://localhost:8080/actuator/info[/actuator/info] endpoint. Build information is now included:
 +
 [source,json]
 ----
@@ -289,15 +281,15 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 +
 *What Just Happened?*
 +
-We have mapped Maven properties from the `pom.xml` into the http://localhost:8080/info[/info] endpoint.
+We have mapped Maven properties from the `pom.xml` into the http://localhost:8080/actuator/info[/actuator/info] endpoint.
 +
-Read more about exposing data in the http://localhost:8080/info[/info] endpoint http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready[here]
+Read more about exposing data in the http://localhost:8080/actuator/info[/actuator/info] endpoint http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready[here]
 
 == Health Indicators
 
-Spring Boot provides a http://localhost:8080/health[/health] endpoint that exposes various health indicators that describe the health of the given application.
+Spring Boot provides a http://localhost:8080/actuator/health[/actuator/health] endpoint that exposes various health indicators that describe the health of the given application.
 
-Normally, when Spring Security is not enabled, the http://localhost:8080/health[/health] endpoint will only expose an UP or DOWN value.
+Normally, when Spring Security is not enabled, the http://localhost:8080/actuator/health[/actuator/health] endpoint will only expose an UP or DOWN value.
 
 [source,json]
 ----
@@ -326,7 +318,7 @@ management: # add this section
 CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 ----
 
-. Browse to the http://localhost:8080/health[/health] endpoint. Out of the box is a `DiskSpaceHealthIndicator` that monitors health in terms of available disk space. Would your Ops team like to know if the app is close to running out of disk space? `DiskSpaceHealthIndicator` can be customized via `DiskSpaceHealthIndicatorProperties`. For instance, setting a different threshold for when to report the status as DOWN.
+. Browse to the http://localhost:8080/actuator/health[/actuator/health] endpoint. Out of the box is a `DiskSpaceHealthIndicator` that monitors health in terms of available disk space. Would your Ops team like to know if the app is close to running out of disk space? `DiskSpaceHealthIndicator` can be customized via `DiskSpaceHealthIndicatorProperties`. For instance, setting a different threshold for when to report the status as DOWN.
 +
 [source,json]
 ----
@@ -387,7 +379,7 @@ public class FlappingHealthIndicator implements HealthIndicator {
 CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 ----
 
-. Browse to the http://localhost:8080/health[/health] endpoint and verify that the output is similar to the following (and changes randomly!).
+. Browse to the http://localhost:8080/actuator/health[/actuator/health] endpoint and verify that the output is similar to the following (and changes randomly!).
 +
 [source,json]
 ----
@@ -414,47 +406,110 @@ CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
 
 == Metrics
 
-Spring Boot provides a http://localhost:8080/metrics[/metrics] endpoint that exposes several automatically collected metrics for your application. It also allows for the creation of custom metrics.
+Spring Boot provides a http://localhost:8080/actuator/metrics[/actuator/metrics] endpoint that exposes several automatically collected metrics for your application. It also allows for the creation of custom metrics.
 
-. Browse to the http://localhost:8080/metrics[/metrics] endpoint. Review the metrics exposed:
+. Browse to the http://localhost:8080/actuator/metrics[/actuator/metrics] endpoint. Review the metrics exposed:
 +
 [source,json]
 ----
 {
-  "mem" : 867005,
-  "mem.free" : 337836,
-  "processors" : 8,
-  "instance.uptime" : 212096,
-  "uptime" : 220870,
-  "systemload.average" : 2.97265625,
-  "heap.committed" : 762368,
-  "heap.init" : 262144,
-  "heap.used" : 424531,
-  "heap" : 3728384,
-  "nonheap.committed" : 107584,
-  "nonheap.init" : 2496,
-  "nonheap.used" : 104638,
-  "nonheap" : 0,
-  "threads.peak" : 27,
-  "threads.daemon" : 21,
-  "threads.totalStarted" : 32,
-  "threads" : 23,
-  "classes" : 13753,
-  "classes.loaded" : 13753,
-  "classes.unloaded" : 0,
-  "gc.ps_scavenge.count" : 8,
-  "gc.ps_scavenge.time" : 148,
-  "gc.ps_marksweep.count" : 3,
-  "gc.ps_marksweep.time" : 433,
-  "httpsessions.max" : -1,
-  "httpsessions.active" : 0,
-  "datasource.primary.active" : 0,
-  "datasource.primary.usage" : 0.0,
-  "gauge.response.health" : 2.0,
-  "gauge.response.star-star.favicon.ico" : 1.0,
-  "counter.status.200.star-star.favicon.ico" : 21,
-  "counter.status.200.health" : 12,
-  "counter.status.503.health" : 10
+  "names": [
+    "jvm.memory.max",
+    "http.server.requests",
+    "jdbc.connections.active",
+    "process.files.max",
+    "jvm.gc.memory.promoted",
+    "tomcat.cache.hit",
+    "system.load.average.1m",
+    "tomcat.cache.access",
+    "jvm.memory.used",
+    "jvm.gc.max.data.size",
+    "jdbc.connections.max",
+    "jdbc.connections.min",
+    "jvm.gc.pause",
+    "jvm.memory.committed",
+    "system.cpu.count",
+    "logback.events",
+    "tomcat.global.sent",
+    "jvm.buffer.memory.used",
+    "tomcat.sessions.created",
+    "jvm.threads.daemon",
+    "system.cpu.usage",
+    "jvm.gc.memory.allocated",
+    "tomcat.global.request.max",
+    "hikaricp.connections.idle",
+    "hikaricp.connections.pending",
+    "tomcat.global.request",
+    "tomcat.sessions.expired",
+    "hikaricp.connections",
+    "jvm.threads.live",
+    "jvm.threads.peak",
+    "tomcat.global.received",
+    "hikaricp.connections.active",
+    "hikaricp.connections.creation",
+    "process.uptime",
+    "tomcat.sessions.rejected",
+    "process.cpu.usage",
+    "tomcat.threads.config.max",
+    "jvm.classes.loaded",
+    "hikaricp.connections.max",
+    "hikaricp.connections.min",
+    "jvm.classes.unloaded",
+    "tomcat.global.error",
+    "tomcat.sessions.active.current",
+    "tomcat.sessions.alive.max",
+    "jvm.gc.live.data.size",
+    "tomcat.servlet.request.max",
+    "hikaricp.connections.usage",
+    "tomcat.threads.current",
+    "tomcat.servlet.request",
+    "hikaricp.connections.timeout",
+    "process.files.open",
+    "jvm.buffer.count",
+    "jvm.buffer.total.capacity",
+    "tomcat.sessions.active.max",
+    "hikaricp.connections.acquire",
+    "tomcat.threads.busy",
+    "process.start.time",
+    "tomcat.servlet.error"
+  ]
+}
+----
++
+This list all the metrics available via this endpoint. For example, to see the `jvm.memory.used` metric, navigate to http://localhost:8080/actuator/metrics/jvm.memory.used[/actuator/metrics/jvm.memory.used] url. You will see an output like
++
+[source,json]
+----
+{
+  "name": "jvm.memory.used",
+  "description": "The amount of used memory",
+  "baseUnit": "bytes",
+  "measurements": [
+    {
+      "statistic": "VALUE",
+      "value": 452365576
+    }
+  ],
+  "availableTags": [
+    {
+      "tag": "area",
+      "values": [
+        "heap",
+        "nonheap"
+      ]
+    },
+    {
+      "tag": "id",
+      "values": [
+        "Compressed Class Space",
+        "PS Survivor Space",
+        "PS Old Gen",
+        "Metaspace",
+        "PS Eden Space",
+        "Code Cache"
+      ]
+    }
+  ]
 }
 ----
 
@@ -476,8 +531,6 @@ Add the following to your Spring Boot configuration:
 [source,yaml,subs="verbatim,attributes"]
 ----
 management:
-  security:
-    enabled: false
   info:
     git:
       mode: full
@@ -568,9 +621,15 @@ CN-Workshop/labs/my_work/cloud-native-spring $ cf push
 . Find the URL created for your app in the health status report and browse to your app.  Also view your application details in the Apps Manager UI:
 +
 image::images/appsman.jpg[]
-
++
+[NOTE]
+====
+Application health will flip between UP and DOWN frequently. This is due to the `FlappingHealthIndicator` that we created. This is an expected behaviour.
+====
 . From this UI you can also dynamically change logging levels:
 +
 image::images/logging.jpg[]
 
 *Congratulations!* You’ve just learned how to add health and metrics to any Spring Boot application.
+
+Let proceed to link:../lab04/lab04.adoc[Lab 4] or back to link:../../README.adoc[Home]
