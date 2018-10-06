@@ -38,12 +38,12 @@ IMPORTANT: Each new lab exercise builds upon the preceding lab, so please do not
 To build the applications in this workshop, you'll need a couple of things:
 
 * https://help.github.com/articles/set-up-git/#setting-up-git[Git]
-* http://www.oracle.com/technetwork/java/javase/downloads/index.html[Java JDK 8]
-* Your favorite IDE or editor (e.g., http://www.eclipse.org[Eclipse] or https://spring.io/tools[Spring Tool Suite], https://www.jetbrains.com/idea[IntelliJ IDEA], https://netbeans.org[NetBeans], Visual Studio, etc)
+* https://www.oracle.com/technetwork/java/javase/downloads/index.html[Java JDK 8]
+* Your favorite IDE or editor (e.g., https://www.eclipse.org[Eclipse] or https://spring.io/tools[Spring Tool Suite], https://www.jetbrains.com/idea[IntelliJ IDEA], https://netbeans.org[NetBeans], Visual Studio, etc)
 
 We'll be pushing applications and creating services in Pivotal Cloud Foundry (PCF). This workshop uses Pivotal Web Services, an instance of PCF hosted by Pivotal.
 
-* Login or signup for a free http://run.pivotal.io[Pivotal Web Services] account
+* Login or signup for a free https://run.pivotal.io[Pivotal Web Services] account
 * Click the _Tools_ link and...
 ** download and install the CLI matching your operating system
 ** login to the CF CLI (`cf login -a api.run.pivotal.io`)
