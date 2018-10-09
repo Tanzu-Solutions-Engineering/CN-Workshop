@@ -37,7 +37,7 @@ In this lab we'll utilize Spring Boot and Spring Cloud to allow our application 
 [...]
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient; // <---- Add this
 [...]
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @RestController
 @EnableJpaRepositories
 @EnableDiscoveryClient // <---- Add this
