@@ -499,3 +499,6 @@ CN-Workshop/labs/my_work/cloud-native-spring $ cf stop cloud-native-spring
 . Refresh the UI app.  What happens?  Now you get a nasty error that is not very user friendly!
 
 . Next we'll learn how to make our UI Application more resilient in the case that our downstream services are unavailable.
+
+
+Lets proceed to link:../lab06/lab06.adoc[Lab 5] or back to link:../../README.adoc[Home]

@@ -210,3 +210,6 @@ image::../lab05/images/ui.jpg[]
 . Refresh your UI application a few times to force some traffic though the circuit breaker call path.  After doing this you should now see the dashboard populated with metrics about the health of your Hystrix circuit breaker:
 +
 image::images/dash1.jpg[]
+
+
+All done! Back to link:../../README.adoc[Home]
