@@ -5,9 +5,9 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-boot-version: 2.0.5
-:spring-cloud-services-dependencies-version: 2.0.1.RELEASE
-:spring-cloud-dependencies-version: Finchley.SR1
+:spring-boot-version: 2.0.7
+:spring-cloud-services-dependencies-version: 2.0.3.RELEASE
+:spring-cloud-dependencies-version: Finchley.RELEASE
 
 = Adding Spring Cloud Service Registration and Discovery
 
