@@ -1,0 +1,66 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Mac Homebrew Setup Instructions
+
+On Mac, https://brew.sh[Homebrew] is the best tool to install application and tools. Here are the instructions to setup Java, cloudfoundry, etc. using homebrew.
+
+== Setup Homebrew
+
+Homebrew requires xcode commandline tools. You can install these using:
+----
+xcode-select --install
+----
+
+You also need to accept developer agreement
+----
+sudo xcodebuild -license accept
+----
+
+Install homebrew using following command
+----
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+----
+
+
+== Setup Java 8
+
+You may have an existing Java installation that may be newer than Java 8. Versions newer that 8, need some extra setup, so we will stick to Java 8 in this lab. You can install JDK8 using package from Oracle or other distribution. Instruction to use brew to do this are below: 
+
+Enable cask version tap
+----
+brew tap homebrew/cask-versions
+----
+54	118	110	
+
+Install JDK 8
+----
+brew cask install java8
+----
+
+Set JAVA_HOME environment variable to JDK 1.8 in your shell profile
+----
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)' >> ~/.zshrc
+----
+
+or
+----
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)' >> ~/.zshrc
+----
+
+== Setup Cloudfoundry Client
+
+Cloudfoundry community maintains a brew tap for all the tools. You can enable the tap with following command:
+----
+brew tap cloudfoundry/tap
+----
+
+Install cf cli
+----
+brew install cf-cli
+----

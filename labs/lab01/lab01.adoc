@@ -5,7 +5,7 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-boot-version: 1.5.11
+:spring-boot-version: 2.0.7
 
 = Building a Spring Boot Application
 
@@ -224,5 +224,19 @@ buildpack: java_buildpack
 ----
 
 . Find the URL created for your app in the health status report (e.g., cloud-native-spring-<random>.cfapps.io) and browse to your app.
++
 
-*Congratulations!* You’ve just completed your first Spring Boot application.
+[TIP]
+====
+If you want to find out route of your applicaiton in future, you can run `cf routes` conmand to find out. It will show a table
+----
+CN-Workshop/labs/my_work/cloud-native-spring $ cf routes
+Getting routes for org user-org / space user-space as user@example.com ...
+
+space       host                          domain      port   path   type   apps                 
+user-space  cloud-native-spring-liqxfuds  cfapps.io                        cloud-native-spring
+----
+====
+*Congratulations!* You’ve just completed your first Spring Boot application. 
+
+Lets proceed to link:../lab02/lab02.adoc[Lab 2] or back to link:../../README.adoc[Home]

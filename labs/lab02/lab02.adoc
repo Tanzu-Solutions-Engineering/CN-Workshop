@@ -30,6 +30,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -39,7 +40,7 @@ public class City implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
@@ -107,39 +108,6 @@ public interface CityRepository extends PagingAndSortingRepository<City, Long> {
 }
 ----
 
-. Add JPA and REST Repository support to the `io.pivotal.cloudnativespring.CloudNativeSpringApplication` Spring Boot Application class.
-+
-.cloud-native-spring/src/main/java/io/pivotal/cloudnativespring/CloudNativeSpringApplication.java
-[source,java,numbered]
-----
-package io.pivotal.cloudnativespring;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-// Add these imports:
-import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
-
-@SpringBootApplication
-@RestController
-@EnableJpaRepositories // <---- And this
-@Import(RepositoryRestMvcConfiguration.class) // <---- And this
-public class CloudNativeSpringApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(CloudNativeSpringApplication.class, args);
-	}
-
-	@RequestMapping("/")
-	public String hello() {
-		return "Hello World!";
-	}
-}
-----
 
 == Run the _cloud-native-spring_ Application
 
@@ -296,17 +264,35 @@ Next we'll add searching capabilities.
 .cloud-native-spring/src/main/java/io/pivotal/cloudnativespring/repositories/CityRepository.java
 [source,java,numbered]
 ----
-@RestResource(path = "name", rel = "name")
-Page<City> findByNameIgnoreCase(@Param("q") String name, Pageable pageable);
+package io.pivotal.cloudnativespring.repositories;
 
-@RestResource(path = "nameContains", rel = "nameContains")
-Page<City> findByNameContainsIgnoreCase(@Param("q") String name, Pageable pageable);
+import io.pivotal.cloudnativespring.domain.City;
 
-@RestResource(path = "state", rel = "state")
-Page<City> findByStateCodeIgnoreCase(@Param("q") String stateCode, Pageable pageable);
+// Add imports from here
+import org.springframework.data.domain.Page; 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
+// Until here
 
-@RestResource(path = "postalCode", rel = "postalCode")
-Page<City> findByPostalCode(@Param("q") String postalCode, Pageable pageable);
+@RepositoryRestResource(collectionResourceRel = "cities", path = "cities")
+public interface CityRepository extends PagingAndSortingRepository<City, Long> {
+  // And add these finder methods from here
+  @RestResource(path = "name", rel = "name")
+  Page<City> findByNameIgnoreCase(@Param("q") String name, Pageable pageable);
+
+  @RestResource(path = "nameContains", rel = "nameContains")
+  Page<City> findByNameContainsIgnoreCase(@Param("q") String name, Pageable pageable);
+
+  @RestResource(path = "state", rel = "state")
+  Page<City> findByStateCodeIgnoreCase(@Param("q") String stateCode, Pageable pageable);
+
+  @RestResource(path = "postalCode", rel = "postalCode")
+  Page<City> findByPostalCode(@Param("q") String postalCode, Pageable pageable);
+  // Until here
+}
 ----
 
 . Run the application
@@ -459,3 +445,5 @@ buildpack: java_buildpack
 ----
 $ curl -i https://cloud-native-spring-<random>.cfapps.io/cities
 ----
+
+Lets proceed to link:../lab03/lab03.adoc[Lab 3] or back to link:../../README.adoc[Home]

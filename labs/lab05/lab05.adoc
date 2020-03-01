@@ -5,9 +5,9 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-boot-version: 1.5.9
-:spring-cloud-services-dependencies-version: 1.6.3.RELEASE
-:spring-cloud-dependencies-version: Edgware.RELEASE
+:spring-boot-version: 2.0.7
+:spring-cloud-services-dependencies-version: 2.0.3.RELEASE
+:spring-cloud-dependencies-version: Finchley.RELEASE
 
 = Adding Spring Cloud Service Registration and Discovery
 
@@ -34,7 +34,10 @@ In this lab we'll utilize Spring Boot and Spring Cloud to allow our application 
 .cloud-native-spring/src/main/java/io/pivotal/cloudnativespring/CloudNativeSpringApplication.java
 [source,java,numbered]
 ----
-@SpringBootApplication
+[...]
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient; // <---- Add this
+[...]
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @RestController
 @EnableJpaRepositories
 @EnableDiscoveryClient // <---- Add this
@@ -53,6 +56,7 @@ package io.pivotal.cloudnativespring;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -60,24 +64,24 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @RestController
 @EnableJpaRepositories
 @EnableDiscoveryClient
 @Import(RepositoryRestMvcConfiguration.class)
 public class CloudNativeSpringApplication {
 
-    @Value("${greeting:Hola}")
-    private String greeting;
+  @Value("${greeting:Hola}")
+  private String greeting;
 
-    public static void main(String[] args) {
-        SpringApplication.run(CloudNativeSpringApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(CloudNativeSpringApplication.class, args);
+  }
 
-    @RequestMapping("/")
-    public String hello() {
-        return greeting + " World!";
-    }
+  @RequestMapping("/")
+  public String hello() {
+    return greeting + " World!";
+  }
 }
 ----
 
@@ -87,7 +91,7 @@ public class CloudNativeSpringApplication {
 +
 [source,bash]
 ----
-CN-Workshop/labs/my_work/cloud-native-spring $ cf create-service p-service-registry standard service-registry
+CN-Workshop/labs/my_work/cloud-native-spring $ cf create-service p-service-registry trial service-registry
 ----
 
 . After you create the service registry instance navigate to your Cloud Foundry _space_ in the Apps Manager UI and refresh the page.  You should now see the newly create `service-registry` instance.  Select the manage link to view the registry dashboard.  Note that there are not any registered applications at the moment:
@@ -121,7 +125,6 @@ applications:
   - config-server
   - service-registry
 ----
-
 == Deploy and test application
 
 . For the 2nd half of this lab we'll need our `cloud-native-spring` Maven artifact accessible in our local Maven repository. Rebuild and install the artifact with the following command:
@@ -143,6 +146,25 @@ CN-Workshop/labs/my_work/cloud-native-spring $ cf push
 image::images/registry2.jpg[]
 
 . Next we'll create a simple UI application that will read the service registry to discover the location of our cities REST service and connect.
+
+== Local Service Registry
+We have successfully deployed application successfully to PCF with config server and service registry. But if you want to test your changes locally, you can use a local spring boot based eureka server. 
+
+. Open a new terminal window, and goto `CN-Workshop/eureka-server` and run spring application
++
+[source,bash]
+----
+CN-Workshop/eureka-server $ ./mvnw spring-boot:run
+----
++
+This will start a eureka server on you machine.
+. Start/Restart `cloud-native-spring` project
++
+[source,bash]
+----
+CN-Worksphop/labs/my_work/cloud-native-spring $ ./mvnw spring-boot:run
+----
+. Goto http://localhost:8761[Dashboard], and you should see a **CLOUD-NATIVE-SPRING** application under registered instances.
 
 == Create another Spring Boot Project as a Client UI
 
@@ -268,7 +290,7 @@ Add the following to the Maven project dependencies:
 ----
 
 +
-Finally, for consistency's sake, we'll produce an exec classified artifact as we did for cloud-native-spring. Your build section should now include:
+Finally, for consistency's sake, we'll produce an exec classified artifact as we did for cloud-native-spring. Also, we will add a profile to our configuration to make it easy for local test and run. Your build section should now include:
 +
 [source,xml]
 ----
@@ -289,6 +311,9 @@ Finally, for consistency's sake, we'll produce an exec classified artifact as we
         </executions>
         <configuration>
           <classifier>exec</classifier>
+          <profiles>
+						<profile>local</profile>
+					</profiles>
         </configuration>
       </plugin>
       [...]
@@ -315,7 +340,15 @@ We'll also need to add a few annotations to our boot application:
 +
 [source,java,numbered]
 ----
-@SpringBootApplication
+[...]
+// Add these
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
+[...]
+
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class) // <--- Update this
 @EnableFeignClients  // <---- Add this
 @EnableDiscoveryClient  // <---- And this
 public class CloudNativeSpringUiApplication {
@@ -327,31 +360,29 @@ Completed:
 ----
 package io.pivotal.cloudnativespringui;
 
+import io.pivotal.cloudnativespring.domain.City;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.hateoas.Resources;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import io.pivotal.cloudnativespring.domain.City;
-
-@SpringBootApplication
+@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EnableFeignClients
 @EnableDiscoveryClient
 public class CloudNativeSpringUiApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CloudNativeSpringUiApplication.class, args);
-    }
-
-    @FeignClient("cloud-native-spring")
-    public interface CityClient {
-
-        @GetMapping(value = "/cities", consumes = "application/hal+json")
-        Resources<City> getCities();
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(CloudNativeSpringUiApplication.class, args);
+	}
+	@FeignClient("cloud-native-spring")
+	public interface CityClient {
+		@GetMapping(value = "/cities", consumes = "application/hal+json")
+		Resources<City> getCities();
+	}
 }
 ----
 
@@ -362,47 +393,37 @@ public class CloudNativeSpringUiApplication {
 ----
 package io.pivotal.cloudnativespringui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vaadin.annotations.Theme;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.UI;
-
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 import io.pivotal.cloudnativespring.domain.City;
 import io.pivotal.cloudnativespringui.CloudNativeSpringUiApplication.CityClient;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@SpringUI
-@Theme("valo")
-public class AppUI extends UI {
+@Theme(Lumo.class)
+@Route("")
+public class AppUI extends VerticalLayout {
 
-    private final CityClient cityClient;
+  private final CityClient cityClient;
 
-    private final Grid<City> grid;
+  private final Grid<City> grid;
 
-    @Autowired
-    public AppUI(CityClient client) {
-        this.cityClient = client;
-        grid = new Grid<>(City.class);
-    }
+  @Autowired
+  public AppUI(CityClient cityClient) {
+    this.cityClient = cityClient;
 
-    @Override
-    protected void init(VaadinRequest request) {
-        setContent(grid);
-        grid.setWidth(100, Unit.PERCENTAGE);
-        grid.setHeight(100, Unit.PERCENTAGE);
-        Collection<City> collection = new ArrayList<>();
-        cityClient.getCities().forEach(collection::add);
-        grid.setItems(collection);
-    }
+    grid = new Grid<>(City.class);
+    add(grid);
+    grid.setWidth("100");
+    grid.setHeight("100");
+    grid.setItems(cityClient.getCities().getContent());
+  }
 }
 ----
 
-. We'll also want to give our UI App a name so that it can register properly with the Service Registry and potentially use cloud config in the future. The `spring-cloud-services-starter-service-registry` dependency pulls in `spring-security`, so we'll also need to disable security for our sample ui.
+. We'll also want to give our UI App a name so that it can register properly with the Service Registry and potentially use cloud config in the future.
 +
 Add the following to your Spring Boot configuration:
 +
@@ -412,11 +433,19 @@ Add the following to your Spring Boot configuration:
 spring:
   application:
     name: cloud-native-spring-ui
+  data: # Required to remediate conflicting '/' endpoint
+    rest:
+      base-path: /api
+---
+# Defining a local profile remediate port conflict with cloud-native-spring project
+spring:
+  profiles: local
+server:
+  port: 8081
 
-security:
-  basic:
-    enabled: false
 ----
++ 
+Extra `---` and text following that are for defining another profile in a single yml file. Since for this lab, we already have a server running on port `8080` (cloud-native-spring), we will make this application run on port `8081` locally. And we do not need such handling on the PCF environment. This config is activated by `mvnw spring-boot:run` due to extra `profiles/profile` tag(s) in `pom.xml`.
 
 == Deploy and test application
 
@@ -470,3 +499,6 @@ CN-Workshop/labs/my_work/cloud-native-spring $ cf stop cloud-native-spring
 . Refresh the UI app.  What happens?  Now you get a nasty error that is not very user friendly!
 
 . Next we'll learn how to make our UI Application more resilient in the case that our downstream services are unavailable.
+
+
+Lets proceed to link:../lab06/lab06.adoc[Lab 5] or back to link:../../README.adoc[Home]

@@ -178,3 +178,4 @@ logs/
 
 # Cloud Native Spring
 labs/my_work/
+.vscode/settings.json
