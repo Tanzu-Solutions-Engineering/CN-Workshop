@@ -11,6 +11,7 @@ endif::[]
 
 == Overview
 
+{{ page.author }}
 [.lead]
 This workshop provides developers with hands on experience building cloud native applications with micro service architectures using Spring Boot and Spring Cloud.  Included are presentations, demos and hands on labs.
 
@@ -54,7 +55,7 @@ To follow along with the lab exercises, please clone this git repo on your local
 
 [source,bash]
 ----
-$ git clone https://github.com/Pivotal-Field-Engineering/CN-Workshop.git
+$ git clone https://github.com/yogendra/CN-Workshop.git
 ----
 
 == IDE Setup and tips
