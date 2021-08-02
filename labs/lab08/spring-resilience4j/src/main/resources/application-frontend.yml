@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+backend:
+  baseUrl: http://localhost:9090
+  connectionTimeout: 50ms
+  readTimeout: 150ms
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      backend:
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 50
+        permittedNumberOfCallsInHalfOpenState: 25
+        slidingWindowType: COUNT_BASED
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 25
+
+management:
+  metrics:
+    tags:
+      application: frontend
+      instance: frontend-${CF_INSTANCE_INDEX:0}

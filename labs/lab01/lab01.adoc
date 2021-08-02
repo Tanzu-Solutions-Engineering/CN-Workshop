@@ -5,7 +5,7 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-boot-version: 1.5.11
+:spring-boot-version: 2.4.8
 
 = Building a Spring Boot Application
 
@@ -163,7 +163,7 @@ Already have something running on port `8080`? You can tell Spring Boot to use a
 
 [source,bash]
 ----
-./mvnw spring-boot:run -Dserver.port=9999
+./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Dserver.port=8010"
 ----
 ====
 
@@ -199,6 +199,7 @@ applications:
   path: target/cloud-native-spring-0.0.1-SNAPSHOT.jar
   env:
     JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 11.+ }, memory_calculator: { stack_threads: 25}}'
 ----
 
 . Push application into Cloud Foundry

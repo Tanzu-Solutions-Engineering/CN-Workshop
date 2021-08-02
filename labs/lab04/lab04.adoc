@@ -5,8 +5,9 @@ ifdef::env-github[]
 :caution-caption: :fire:
 :warning-caption: :warning:
 endif::[]
-:spring-cloud-services-dependencies-version: 1.6.3.RELEASE
-:spring-cloud-dependencies-version: Edgware.RELEASE
+:spring-boot-version: 2.4.8
+:spring-cloud-services-dependencies-version: 2.4.1
+:spring-cloud-dependencies-version: 2020.0.3
 
 = Adding Spring Cloud Config Server
 
@@ -29,9 +30,9 @@ Add the following to Maven `dependencies`:
   <dependencies>
     [...]
     <dependency>
-      <groupId>io.pivotal.spring.cloud</groupId>
-      <artifactId>spring-cloud-services-starter-config-client</artifactId>
-    </dependency>
+			<groupId>io.pivotal.spring.cloud</groupId>
+			<artifactId>spring-cloud-services-starter-config-client</artifactId>
+		</dependency>
     [...]
   </dependencies>
   [...]
@@ -44,25 +45,30 @@ Add the following to Maven `dependencies`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <project>
+	<properties>
+		<java.version>11</java.version>
+		<spring-cloud.version>{spring-cloud-dependencies-version}</spring-cloud.version>
+    <spring-cloud-services-version>{spring-cloud-services-dependencies-version}</spring-cloud-services-version>
+	</properties>
   [...]
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.pivotal.spring.cloud</groupId>
-        <artifactId>spring-cloud-services-dependencies</artifactId>
-        <version>{spring-cloud-services-dependencies-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>{spring-cloud-dependencies-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+	<dependencyManagement>
+		<dependencies>
+    	<dependency>
+				<groupId>io.pivotal.spring.cloud</groupId>
+				<artifactId>spring-cloud-services-dependencies</artifactId>
+				<version>${spring-cloud-services-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
   [...]
 </project>
 ----
@@ -70,8 +76,13 @@ Add the following to Maven `dependencies`:
 . Add an `@Value` annotation, private field, and associated usage to the `CloudNativeSpringApplication` class.
 +
 .cloud-native-spring/src/main/java/io/pivotal/CloudNativeSpringApplication.java
++
 [source,java,numbered]
 ----
+import org.springframework.beans.factory.annotation.Value;
+
+public class CloudNativeSpringApplication {
+    ...
     @Value("${greeting:Hola}")
     private String greeting;
 
@@ -91,16 +102,12 @@ package io.pivotal.cloudnativespring;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-@EnableJpaRepositories
-@Import(RepositoryRestMvcConfiguration.class)
 public class CloudNativeSpringApplication {
 
     @Value("${greeting:Hola}")
@@ -117,19 +124,8 @@ public class CloudNativeSpringApplication {
 }
 ----
 
-. When we introduced the Spring Cloud Services Starter Config Client dependency Spring Security will also be included (Config servers will be protected by OAuth2).  However, this will also enable basic authentication to all our service endpoints.
-+
-Add the following to your Spring Boot configuration:
-+
-.cloud-native-spring/src/main/resources/application.yml
-[source,yaml]
-----
-security:
-  basic:
-    enabled: false
-----
 
-. We'll also want to give our Spring Boot application a name so that it can lookup application-specific configuration from the config server later.
+. We'll want to give our Spring Boot application a name so that it can lookup application-specific configuration from the config server later.
 +
 Add the following to your Spring Boot configuration:
 +
@@ -140,38 +136,49 @@ spring:
   application:
     name: cloud-native-spring
 ----
-
+. Specify a default location for the config server.  This location can be used when developing locally with a local config server. 
++
+.cloud-native-spring/src/main/resources/application.yml
+[source,yaml]
+----
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888
+----
 . Complete YML:
 +
 [source,yaml]
 ----
-spring:
-  application:
-    name: cloud-native-spring
-
-info:
-  build:
-    artifact: "@project.artifactId@"
-    name: "@project.name@"
-    description: "@project.description@"
-    version: "@project.version@"
-
-endpoints:
-  sensitive: false
-
 management:
-  security:
-    enabled: false
+  cloudfoundry:
+    enabled: true
+    skip-ssl-validation: false
   info:
     git:
       mode: full
-  cloudfoundry:
-    enabled: true
-    skip-ssl-validation: false # set to true if using an insecure CF environment
-
-security:
-  basic:
-    enabled: false
+      enabled: true
+  health:
+    diskspace:
+      threshold: 200000MB
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+info:
+  build:
+    artifact: @project.artifactId@
+    name: @project.name@
+    description: @project.description@
+    version: @project.version@
+    foo: bar
+spring:
+  application:
+    name: cloud-native-spring
+  config:
+    import: optional:configserver:http://localhost:8888
 ----
 
 . Run the _cloud-native-spring_ Application and verify dynamic config is working:
@@ -205,13 +212,20 @@ Select the *Manage* link towards the top of the resulting screen.  This view sho
 +
 image::images/config-scs2.jpg[]
 
+. If you prefer the CLI you can create the service instance as follows.
++
+[source.bash]
+----
+cf create-service p.config-server standard config-serve
+----
++
 . We now need to update the service instance with our GIT repository information where our configuration files are stored. For this example, we are using the `config` branch of our workshop repository.
 +
 Using the Cloud Foundry CLI execute the following update service command:
 +
 [source,bash]
 ----
-CN-Workshop/labs/my_work/cloud-native-spring $ cf update-service config-server -c '{"git": { "uri": "https://github.com/Pivotal-Field-Engineering/CN-Workshop", "label": "config" } }'
+cf update-service config-server -c '{"git": { "uri": "https://github.com/Pivotal-Field-Engineering/CN-Workshop", "label": "config" } }'
 ----
 
 . Refresh you Config Server management page and you will see the following message.  Wait until the screen refreshes and the service is reintialized:

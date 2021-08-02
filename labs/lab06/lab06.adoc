@@ -6,64 +6,53 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-= Adding Spring Cloud Circuit Breaker and Dashboard
+= Adding Spring Cloud Circuit Breaker
 
 == Overview
 
 [.lead]
-In this lab we'll utilize Spring Boot and Spring Cloud to make our UI Application more resilient.  We'll leverage Spring Cloud Circuit Breaker to configure our application behavior when our downstream dependencies are not available.  Finally, we'll use the circuit breaker dashboard to view metrics of the circuit breaker we implemented, which will be auto-provisioned within Pivotal Cloud Foundry Spring Cloud Services.
+In this lab we'll utilize Spring Boot and Spring Cloud to make our UI Application more resilient.  We'll leverage Spring Cloud Circuit Breaker combined with reslience4j to configure our application behavior when our downstream dependencies are not available.
 
 == Define a Circuit Breaker within the _UI Application_
 
-. These features are added by adding `spring-cloud-services-starter-circuit-breaker` to Maven project dependencies:
+. These features are added by adding `spring-cloud-starter-circuitbreaker-reactor-resilience4j` to Maven project dependencies:
 +
 .cloud-native-spring-ui/pom.xml
 [source,xml]
 ----
-<dependency>
-  <groupId>io.pivotal.spring.cloud</groupId>
-  <artifactId>spring-cloud-services-starter-circuit-breaker</artifactId>
-</dependency>
+	<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+	</dependency>
 ----
 
-. The first thing we need to add to our application is an `@EnableCircuitBreaker` annotation to the Spring Boot application.  Add this annotation to the `CloudNativeSpringUIApplication` class:
+. In AppUI add a class level variable for the CircuitBreakerFactory
++
+[source,java,numbered]
+----
+private ReactiveCircuitBreakerFactory cbFactory;
+----
++
+Pass the ReactiveCircuitBreakerFactory in the constructor to AppUI.
++
+[source,java,numbered]
+----
+public AppUI(WebClient.Builder wcB, ReactiveCircuitBreakerFactory cbFactory ) 
+----
+. In our webClient call to the downstream service we can add a circuit breaker handler to provide a default response. In this case whenever the circuit breaker is tripped we will return an empty list.  We could alternatively do some error handling such as putting a message on a queue or calling some other service to retrieve the data we need.
 +
 .cloud-native-spring-ui/src/main/java/io/pivotal/cloudnativespringui/CloudNativeSpringUiApplication.java
 [source,java,numbered]
 ----
-@SpringBootApplication
-@EnableFeignClients
-@EnableDiscoveryClient
-@EnableCircuitBreaker // <---- Add this
-public class CloudNativeSpringUiApplication {
-    [...]
-}
-----
+ PagedModel<City> block = wcB.build().get().uri(URL).accept(HAL_JSON) //
+      .retrieve()
+      .bodyToMono(new ParameterizedTypeReference<PagedModel<City>>() {
+      }).transform(
+              it -> cbFactory.create("city-service").run(it,throwable -> {
+                  return Mono.just(PagedModel.empty());
+              })
+      ).block();
 
-. When we introduced the `@FeignClient` into our application we were only required to provide an interface.  We'll provide a dummy class that implements that interface for our fallback.  We'll also reference that class as a fallback in our `@FeignClient` annotation.  First, create this inner class in the `CloudNativeSpringUiApplication` class:
-+
-.cloud-native-spring-ui/src/main/java/io/pivotal/cloudnativespringui/CloudNativeSpringUiApplication.java
-[source,java,numbered]
-----
-@Component
-public class CityClientFallback implements CityClient {
-    @Override
-    public Resources<City> getCities() {
-        // We'll just return an empty response
-        return new Resources<City>(Collections.emptyList());
-    }
-}
-----
-+
-. Also modify the `@FeignClient` annotation to reference this class as the fallback in case of failure:
-+
-.cloud-native-spring-ui/src/main/java/io/pivotal/cloudnativespringui/CloudNativeSpringUiApplication.java
-[source,java,numbered]
-----
-@FeignClient(name = "cloud-native-spring", fallback = CityClientFallback.class)
-public interface CityClient {
-    [...]
-}
 ----
 +
 . Your Boot Application should now look like this _CloudNativeSpringUiApplication_:
@@ -73,96 +62,53 @@ public interface CityClient {
 ----
 package io.pivotal.cloudnativespringui;
 
-import java.util.Collections;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Route;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.hateoas.Resources;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
+import java.util.*;
 
-import io.pivotal.cloudnativespring.domain.City;
+import static org.springframework.data.rest.webmvc.RestMediaTypes.HAL_JSON;
 
-@SpringBootApplication
-@EnableFeignClients
-@EnableDiscoveryClient
-@EnableCircuitBreaker
-public class CloudNativeSpringUiApplication {
+@Route
+public class AppUI extends VerticalLayout {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CloudNativeSpringUiApplication.class, args);
+    private final Grid<City> grid;
+
+    private ReactiveCircuitBreakerFactory cbFactory;
+
+    private static final String URL = "http://cloud-native-spring/cities?page=1&size=400";
+
+    public AppUI(WebClient.Builder wcB, ReactiveCircuitBreakerFactory cbFactory ) {
+        this.cbFactory = cbFactory;
+        Map<String, Integer> params = new HashMap<>();
+        params.put("page", 1);
+        params.put("size", 100);
+
+        PagedModel<City> block = wcB.build().get().uri(URL).accept(HAL_JSON) //
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<PagedModel<City>>() {
+                }).transform(
+                        it -> cbFactory.create("city-service").run(it,throwable -> {
+                            return Mono.just(PagedModel.empty());
+                        })
+                ).block();
+
+        add(new Text("Cities By Spring."));
+        grid = new Grid<>(City.class);
+        Collection<City> collection = new ArrayList<>();
+        block.forEach(collection::add);
+        grid.setItems(collection);
+        add(grid);
     }
 
-    @FeignClient(name = "cloud-native-spring", fallback = CityClientFallback.class)
-    public interface CityClient {
-        @GetMapping(value = "/cities", consumes = "application/hal+json")
-        Resources<City> getCities();
-    }
-
-    @Component
-    public class CityClientFallback implements CityClient {
-        @Override
-        public Resources<City> getCities() {
-            // We'll just return an empty response
-            return new Resources<City>(Collections.emptyList());
-        }
-    }
 }
-----
-
-. To enable Feign Hystrix support, we'll need to add the following to our Spring Boot configuration:
-+
-.cloud-native-spring-ui/src/main/resources/application.yml
-[source,yaml]
-----
-feign:
-  hystrix:
-    enabled: true
-----
-+
-Completed:
-+
-.cloud-native-spring-ui/src/main/resources/application.yml
-[source,yaml]
-----
-spring:
-  application:
-    name: cloud-native-spring-ui
-
-feign:
-  hystrix:
-    enabled: true
-
-security:
-  basic:
-    enabled: false
-----
-
-== Create the Circuit Breaker Dashboard
-
-.  When we modified our application to use a Hystrix Circuit Breaker our application automatically begins streaming out metrics about the health of our methods wrapped with a HystrixCommand.  We can stream these events through a AMQP message bus into Turbine to view on a Circuit Breaker dashboard.  This can be done through Cloud Foundry using the services marketplace by executing the following command:
-+
-[source,bash]
-----
-CN-Workshop/labs/my_work/cloud-native-spring-ui $ cf create-service p-circuit-breaker-dashboard standard circuit-breaker-dashboard
-----
-
-. If we view the Circuit Breaker Dashboard (accessible from the *Manage* link in Apps Manager) you will see that a dashboard has been deployed but is empty (You may get an _initializing_ message for a few seconds.  This should eventually refresh to a dashboard):
-+
-image::images/dash.jpg[]
-
-. We will now bind our application to our `circuit-breaker-dashboard` within our Cloud Foundry deployment manifest:
-+
-.cloud-native-spring-ui/manifest.yml
-[source,yml]
-----
-  services:
-  - service-registry
-  - circuit-breaker-dashboard # <---- Add this
 ----
 
 == Deploy and test application
@@ -171,7 +117,7 @@ image::images/dash.jpg[]
 +
 [source,bash]
 ----
-CN-Workshop/labs/my_work/cloud-native-spring-ui $ ./mvnw package
+CN-Workshop/labs/my_work/cloud-native-spring-ui $ ./mvnw package -Pproduction
 ----
 
 . Push application to Cloud Foundry
@@ -196,6 +142,4 @@ CN-Workshop/labs/my_work/cloud-native-spring $ cf start cloud-native-spring
 +
 image::../lab05/images/ui.jpg[]
 
-. Refresh your UI application a few times to force some traffic though the circuit breaker call path.  After doing this you should now see the dashboard populated with metrics about the health of your Hystrix circuit breaker:
-+
-image::images/dash1.jpg[]
+. Refresh your UI application a few times to force some traffic though the circuit breaker call path.  
