@@ -1,0 +1,111 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Using a MySQL Database
+
+== Overview
+
+[.lead]
+In this lab we'll utilize Spring Boot to automatically connect to a MySQL database via a service binding. A service binding allows Cloud Foundry to automatically manage the connection URL, username and password.  Simply by binding the application to the database Boot will automaticaly connect
+to the database.
+
+
+== Add the MySQL Dependency to the  _Backend Application_
+
+. These features are added by adding the MySQL database driver to the application.
++
+.cloud-native-spring/pom.xml
+[source,xml]
+----
+	<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+	</dependency>
+----
+
+== Create the Database Schema using Flyway
+
+With Flyway all changes to the database are called migrations. Migrations are versioned and repeatable. Flyaway automatically
+runs the SQL needed to bring the database to the desired state.  To keep track of which migrations have already been applied when and by whom, Flyway adds a schema history table to your schema.
+
+. Add the Flyway dependency
++
+.cloud-native-spring/pom.xml
+[source,xml]
+----
+	<dependency>
+		<groupId>org.flywaydb</groupId>
+		<artifactId>flyway-core</artifactId>
+    </dependency>
+----
+. Add a a `db/migration` folder to `src/main/resources` with the following DDL script.
++
+.src/main/resources/db/migration/V1_0_initial-city.sql
+
+[source]
+----
+	create table city (
+    id SERIAL primary key,
+    latitude varchar(100),
+    longitude varchar(100),
+    name varchar(100),
+    state_code varchar(30),
+    postal_code varchar(30),
+    county varchar(100)
+);
+----
++
+. Relocate the data.sql script containing the city insert statements to the `src/main/resources/db/migration/V1_1_import.sql`
++
+. Create the database if needed using the CF cli.
++
+[source]
+----
+cf create-service p.mysql  db-small mydb
+----
+. Bind the application to the newly created database.
++
+.manifest.yml
+[source]
+----
+---
+applications:
+- name: cloud-native-spring
+  random-route: true
+  memory: 768M
+  path: target/cloud-native-spring-0.0.1-SNAPSHOT.jar
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 11.+ }, memory_calculator: { stack_threads: 25}}'
+  services:
+    - config-server
+    - service-registry
+    - mydb
+----
++
+. Build the Application
++
+[source,bash]
+----
+CN-Workshop/labs/my_work/cloud-native-spring $ ./mvnw package
+----
++
+. Push the Application
++
+[source,bash]
++
+----
+CN-Workshop/labs/my_work/cloud-native-spring $ cf push
+----
++
+. View the credentials bound to the application
++
+[source,bash]
+----
+CN-Workshop/labs/my_work/cloud-native-spring $ cf env cloud-native-spring
+----
